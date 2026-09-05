@@ -28,5 +28,9 @@
 ## Appearance and examples
 <img src="img/img1.jpeg" width="360">
 <img src="img/img2.jpeg" width="360">
+<img src="img/img3.jpeg" width="360">
+
+<img src="img/img4.jpeg" width="360">
+Combination use with the USB Nano Mouse
 
 [1]: https://github.com/meerstern/Nano_USB_Mouse/
