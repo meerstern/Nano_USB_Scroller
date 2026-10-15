@@ -35,4 +35,5 @@
 Combination use with the USB Nano Mouse
 
 [1]: https://github.com/meerstern/Nano_USB_Mouse/
-[2]: https://github.com/meerstern/Nano_USB_Scroller/tree/Nano_USB_Volume
+[2]: https://github.com/meerstern/Nano_USB_Scroller/tree/Nano_USB_Volume/firm_binary
+
