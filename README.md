@@ -1,13 +1,14 @@
+# Nano USB Volume
 
 # Overview
   * This board is equipped with scroll and center button functions.  
-  * It supports vertical scrolling and center button operation.  
+  * It supports volume control and mute with center button operation.  
   * Suitable for small PCs and SBCs(Single Board Computers, like Raspberry Pi).  
   * It operates using standard drivers, without the need for a dedicated driver.   
   * The vertical scrolling direction can be changed to match the USB orientation.  
 
 # Direction Setting
-  * To change the scroll direction, press and hold the center button while connecting the device to the USB port.  
+  * To change the volume direction, press and hold the center button while connecting the device to the USB port.  
   * The settings will be applied immediately.
   * If the settings are not applied, please perform the procedure again.  
   * The configuration data is automatically saved to flash memory.   
@@ -16,10 +17,6 @@
   * If you do not wish to change the orientation, connect this device to the USB port without pressing the center button.
   * To reverse the direction, perform the operation again to return it to the original state.
 
-# Target user
-  * It is ideal for users operating CAD software on a laptop.
-  * It is convenient to use in combination with a [Nano USB mouse][1].  
-    
 # Note
   * Please take care not to short-circuit or damage components on the back of the board.    
   * Please operate gently. Operating it with excessive force may cause damage.  
