@@ -2,7 +2,7 @@
 #include <string.h>
 #include "ch554.h"
 #include "ch554_usb.h"
-#include "mouse.h"
+#include "volume.h"
 
 #define UsbSetupBuf ((USB_SETUP_REQ *)Ep0Buffer)
 #define FIXED_ADDRESS_EP0_BUFFER    0x0000  
@@ -16,26 +16,22 @@ __code uint8_t DevDesc[18] =
 	0x00, 0x01
 };
 
-// Configuration Descriptor
-__code uint8_t CfgDesc[59] =
+
+__code uint8_t CfgDesc[] =
 {
-	0x09, 0x02,	0x22, 0x00,	0x01, 0x01,	0x00, 0x80,		
-	0x32, 0x09,	0x04, 0x00, 0x00, 0x01,	0x03, 0x01,		
-	0x02, 0x00,	0x09, 0x21,	0x11, 0x01,	0x00, 0x01,		
-	0x22, 0x34, 0x00, 0x07,	0x05, 0x81,	0x03, 0x04, 
-	0x00, 0x0a
+    0x09, 0x02, 0x22, 0x00, 0x01, 0x01, 0x00, 0xA0, 
+	0x32, 0x09, 0x04, 0x00, 0x00, 0x01, 0x03, 0x00, 
+	0x00, 0x00, 0x09, 0x21, 0x11, 0x01, 0x00, 0x01,       
+    0x22, 0x19, 0x00, 0x07, 0x05, 0x81, 0x03, 0x08, 
+	0x00, 0x0A     
 };
 
 // HID Report Descriptor
-__code uint8_t MouseRepDesc[52] =
-{
-	0x05, 0x01,	0x09, 0x02, 0xa1, 0x01,	0x09, 0x01,
-	0xa1, 0x00,	0x05, 0x09,	0x19, 0x01,	0x29, 0x03,	
-	0x15, 0x00,	0x25, 0x01,	0x95, 0x03,	0x75, 0x01,	
-	0x81, 0x02,	0x95, 0x01,	0x75, 0x05,	0x81, 0x03,	
-	0x05, 0x01,	0x09, 0x30,	0x09, 0x31,	0x09, 0x38,	
-	0x15, 0x81,	0x25, 0x7f,	0x75, 0x08,	0x95, 0x03,	
-	0x81, 0x06,	0xc0, 0xc0
+__code uint8_t VolumeRepDesc[] = {
+	0x05, 0x0C, 0x09, 0x01, 0xA1, 0x01, 0x85, 0x01,  
+	0x19, 0x00, 0x2A, 0x3C, 0x02, 0x15, 0x00, 0x26, 
+	0x3C, 0x02,	0x95, 0x01, 0x75, 0x10, 0x81, 0x00, 
+	0xC0      
 };
 
 // String Descriptor (Language)
@@ -64,14 +60,6 @@ volatile __idata uint8_t RepDescSent;
 volatile __idata uint8_t HIDDataSent;
 
 uint8_t buttonsState = 0;
-
-int8_t hidMouse[4] = 
-{
-	0x0,	// Buttons
-	0x0,	// X
-	0x0,	// Y
-	0x0		// Wheel
-};
 
 void USBInterruptHandler( void ) __interrupt (INT_NO_USB)
 {
@@ -158,8 +146,8 @@ void USBInterruptHandler( void ) __interrupt (INT_NO_USB)
 								case 0x22:
 									if(UsbSetupBuf->wIndexL == 0)
 									{
-										pDescr = MouseRepDesc;
-										len = sizeof(MouseRepDesc);
+										pDescr = VolumeRepDesc;
+										len = sizeof(VolumeRepDesc);
 										RepDescSent = 1;
 									}
 									else
@@ -345,20 +333,61 @@ void USBInterruptHandler( void ) __interrupt (INT_NO_USB)
 	}
 }
 
-void hidValueHandle(uint8_t button, int8_t x, int8_t y, int8_t wheel)
+
+void volumeUpHandle()
 {
+	uint8_t vol[3]={0};
 	HIDDataSent = 0;		
-	hidMouse[0] = button&MOUSE_BUTTONS_MASK;
-	hidMouse[1] = x;
-	hidMouse[2] = y;
-	hidMouse[3] = wheel;
-	memcpy(Ep1Buffer, hidMouse, sizeof(hidMouse));
-	UEP1_T_LEN = sizeof(hidMouse);
+	vol[0] = 0x01;
+	vol[1] = 0xE9;
+	vol[2] = 0x00;
+	memcpy(Ep1Buffer, vol, sizeof(vol));
+	UEP1_T_LEN = sizeof(vol);
 	UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;
 	while(HIDDataSent == 0) {}
 }
 
-void mouse_init()
+void volumeDownHandle()
+{
+	uint8_t vol[3]={0};
+	HIDDataSent = 0;		
+	vol[0] = 0x01;
+	vol[1] = 0xEA;
+	vol[2] = 0x00;
+	memcpy(Ep1Buffer, vol, sizeof(vol));
+	UEP1_T_LEN = sizeof(vol);
+	UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;
+	while(HIDDataSent == 0) {}
+}
+
+void volumeMuteHandle()
+{
+	uint8_t vol[3]={0};
+	HIDDataSent = 0;		
+	vol[0] = 0x01;
+	vol[1] = 0xE2;
+	vol[2] = 0x00;
+	memcpy(Ep1Buffer, vol, sizeof(vol));
+	UEP1_T_LEN = sizeof(vol);
+	UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;
+	while(HIDDataSent == 0) {}
+}
+
+void volumeResetHandle()
+{
+	uint8_t vol[3]={0};
+	HIDDataSent = 0;		
+	vol[0] = 0x01;
+	vol[1] = 0x00;
+	vol[2] = 0x00;
+	memcpy(Ep1Buffer, vol, sizeof(vol));
+	UEP1_T_LEN = sizeof(vol);
+	UEP1_CTRL = UEP1_CTRL & ~MASK_UEP_T_RES | UEP_T_RES_ACK;
+	while(HIDDataSent == 0) {}
+	
+}
+
+void volume_init()
 {
 	IE_USB = 0;
 	USB_CTRL = 0x00;

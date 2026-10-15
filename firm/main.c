@@ -5,7 +5,7 @@
 #include "debug.h"
 
 #include "ch554.h"
-#include "mouse.h"
+#include "volume.h"
 #include "flash.h"
 
 #define ADDRESS_DIRECTION	0		//Flash Address for Direction Memory
@@ -100,6 +100,7 @@ void main()
 	mInitSTDIO();
 	initGPIO();
 	enableInterruptGPIO();
+	bool isMute = false;
 	
 	unsigned char direction = FORWARD_DIR_MODE;
 	readDataFlash(ADDRESS_DIRECTION, &direction, 1);
@@ -113,25 +114,37 @@ void main()
 		writeDataFlash(ADDRESS_DIRECTION, &direction, 1);	
 	}
 	
-	mouse_init();
+	volume_init();
 
 	while(1)
 	{
 		bool centerSw = CENTER_SW;
-		if( encoder_delta!=encoder_delta_old && abs(encoder_delta-encoder_delta_old)<100  && abs(encoder_delta-encoder_delta_old) > 1 
-			|| centerSw!=centerSwOld)
+		if( encoder_delta!=encoder_delta_old && abs(encoder_delta-encoder_delta_old)<100  && abs(encoder_delta-encoder_delta_old) > 1 )
 		{
-			
-			uint8_t button = (CENTER_SW==0)?MOUSE_MIDDLE_BUTTON:0;
 			int8_t wheel = encoder_delta;
 			if(direction == REVERSE_DIR_MODE)
 				wheel = -1*wheel;
-			hidValueHandle(button, 0, 0, wheel);			
+			
+			if(wheel>0)
+				volumeUpHandle();
+			else if(wheel<0)
+				volumeDownHandle();
+			else
+				volumeResetHandle();
+		
 			//printf("Val: %d\n",encoder_delta);
 			encoder_delta = 0;
 			encoder_delta_old = encoder_delta;
+			mDelaymS(10);			
+		}
+		else if(centerSw!=centerSwOld)
+		{
+			if(CENTER_SW==0)
+				volumeMuteHandle();
+			else
+				volumeResetHandle();
 			centerSwOld = centerSw;	
-			mDelaymS(5);			
+			mDelaymS(10);	
 		}		
 	}
 }
