@@ -24,6 +24,7 @@
   * Please take care not to short-circuit or damage components on the back of the board.    
   * Please operate gently. Operating it with excessive force may cause damage.  
   * PCB color, LED color, and other specifications are subject to change without notice.
+  * By modifying [the firmware][2], you can customize the function as a volume or mute control.
 
 ## Appearance and examples
 <img src="img/img1.jpeg" width="360">
@@ -34,3 +35,4 @@
 Combination use with the USB Nano Mouse
 
 [1]: https://github.com/meerstern/Nano_USB_Mouse/
+[2]: https://github.com/meerstern/Nano_USB_Scroller/tree/Nano_USB_Volume
